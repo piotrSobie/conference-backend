@@ -20,4 +20,6 @@ public interface UserDao {
     Optional<User> findUserByLogin(String login);
 
     int updateUserEmail(UUID id, String email);
+
+    Optional<User> findUserById(UUID id);
 }

@@ -54,5 +54,17 @@ public class UserDataAccessService implements UserDao {
         jdbcTemplate.update(sql, email, id);
         return 0;
     }
+
+    @Override
+    public Optional<User> findUserById(UUID id) {
+        User u;
+        try {
+            final String sql = "SELECT id, login, email FROM users WHERE id = ?";
+            u = jdbcTemplate.queryForObject(sql, new UserRowMapper(), id);
+        } catch(EmptyResultDataAccessException e) {
+            u = null;
+        }
+        return Optional.ofNullable(u);
+    }
     
 }

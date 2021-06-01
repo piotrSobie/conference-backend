@@ -1,8 +1,10 @@
 package com.example.conference.controllers;
 
-import java.util.List;
 import java.util.UUID;
 
+import com.example.conference.exceptions.LoginAlreadyTakenException;
+import com.example.conference.exceptions.UserNotExistException;
+import com.example.conference.helpers.ErrorMessage;
 import com.example.conference.models.User;
 import com.example.conference.services.UserService;
 
@@ -29,23 +31,45 @@ public class UserController {
     }
 
     @PostMapping
-    public ResponseEntity<String> addUser(@RequestBody User user) {
-        int result = userService.addUser(user);
-        if (result == 409) {
+    public ResponseEntity<Object> addUser(@RequestBody User user) {
+        try {
+            userService.addUser(user);
+            return new ResponseEntity<>(HttpStatus.CREATED);
+        } catch(LoginAlreadyTakenException e) {
             return new ResponseEntity<>(
-                "Podany login jest juz zajety",
+                new ErrorMessage(e.getMessage()),
                 HttpStatus.CONFLICT);
+        } catch(Exception e) {
+            return new ResponseEntity<>(
+                new ErrorMessage("Internal server error"),
+                HttpStatus.INTERNAL_SERVER_ERROR);
         }
-        return new ResponseEntity<>("", HttpStatus.CREATED);
     }
 
     @GetMapping
-    public List<User> getAllUsers() {
-        return userService.getAllUsers();
+    public ResponseEntity<Object> getAllUsers() {
+        try {
+            return new ResponseEntity<>(userService.getAllUsers(), HttpStatus.OK);
+        } catch(Exception e) {
+            return new ResponseEntity<>(
+                new ErrorMessage("Internal server error"),
+                HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     @PutMapping(path = "{id}")
-    public void updateUserEmail(@PathVariable("id") UUID id, @RequestBody User user) {
-        userService.updateUserEmail(id, user.getEmail());
+    public ResponseEntity<Object> updateUserEmail(@PathVariable("id") UUID id, @RequestBody User user) {
+        try {
+            userService.updateUserEmail(id, user.getEmail());
+            return new ResponseEntity<>(HttpStatus.OK);
+        } catch(UserNotExistException e) {
+            return new ResponseEntity<>(
+                new ErrorMessage(e.getMessage()),
+                HttpStatus.CONFLICT);
+        } catch(Exception e) {
+            return new ResponseEntity<>(
+                new ErrorMessage("Internal server error"),
+                HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 }

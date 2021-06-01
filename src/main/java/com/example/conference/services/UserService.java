@@ -5,6 +5,8 @@ import java.util.Optional;
 import java.util.UUID;
 
 import com.example.conference.dao.UserDao;
+import com.example.conference.exceptions.LoginAlreadyTakenException;
+import com.example.conference.exceptions.UserNotExistException;
 import com.example.conference.models.User;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,10 +23,10 @@ public class UserService {
         this.userDao = userDao;
     }
 
-    public int addUser(User user) {
+    public int addUser(User user) throws LoginAlreadyTakenException {
         Optional<User> userOptional = userDao.findUserByLogin(user.getLogin());
         if(userOptional.isPresent()) {
-            return 409;
+            throw new LoginAlreadyTakenException("Podany login jest juz zajety");
         }
 
         return userDao.insertUser(user);
@@ -34,7 +36,11 @@ public class UserService {
         return userDao.selectAllUsers();
     }
 
-    public int updateUserEmail(UUID id, String email) {
+    public int updateUserEmail(UUID id, String email) throws UserNotExistException {
+        Optional<User> userOptional = userDao.findUserById(id);
+        if(userOptional.isEmpty()) {
+            throw new UserNotExistException("Uzytkownik nie istnieje");
+        }
         return userDao.updateUserEmail(id, email);
     }
     
