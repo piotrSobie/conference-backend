@@ -12,7 +12,7 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
-@Repository("h2")
+@Repository("h2-user")
 public class UserDataAccessService implements UserDao {
 
     private final JdbcTemplate jdbcTemplate;

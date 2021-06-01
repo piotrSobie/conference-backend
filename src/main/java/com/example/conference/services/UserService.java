@@ -19,7 +19,7 @@ public class UserService {
     private final UserDao userDao;
 
     @Autowired
-    public UserService(@Qualifier("h2") UserDao userDao) {
+    public UserService(@Qualifier("h2-user") UserDao userDao) {
         this.userDao = userDao;
     }
 
