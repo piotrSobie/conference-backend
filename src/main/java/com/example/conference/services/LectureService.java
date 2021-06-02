@@ -35,5 +35,13 @@ public class LectureService {
         }
         return lectureOptional.get();
     }
+
+    int getNrTeakenSeatsLecture(UUID lectureId) {
+        return lectureDao.checkNrTakenSeats(lectureId);
+    }
+
+    List<Lecture> getRegistratedLecturesForUser(UUID userId) {
+        return lectureDao.getRegistratedLecturesForUser(userId);
+    }
     
 }

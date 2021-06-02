@@ -13,8 +13,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-import com.example.conference.dao.LectureDao;
-import com.example.conference.dao.LectureDataAccessService;
 import com.example.conference.dao.UserDao;
 import com.example.conference.exceptions.AllSeatsTakenException;
 import com.example.conference.exceptions.AlreadyRegisteredForHourException;
@@ -32,17 +30,14 @@ import org.springframework.stereotype.Service;
 public class UserService {
 
     private final UserDao userDao;
-    private final LectureDao lectureDao;
     private final LectureService lectureService;
 
     private final static String notificationsFileName = "powiadomienia.txt";
 
     @Autowired
     public UserService(@Qualifier("h2-user") UserDao userDao,
-                        @Qualifier("h2-lecture") LectureDataAccessService lectureDataAccessService,
                         LectureService lectureService) {
         this.userDao = userDao;
-        this.lectureDao = lectureDataAccessService;
         this.lectureService = lectureService;
     }
 
@@ -58,30 +53,30 @@ public class UserService {
         return userDao.selectAllUsers();
     }
 
-    public int updateUserEmail(UUID id, String email) throws UserNotExistException {
+    public void updateUserEmail(UUID id, String email) throws UserNotExistException {
         Optional<User> userOptional = userDao.findUserById(id);
         if(userOptional.isEmpty()) {
             throw new UserNotExistException();
         }
         userDao.updateUserEmail(id, email);
-        return 0;
     }
 
-    public int registerUserForLecture(UUID userId, UUID lectureId) 
+    public void registerUserForLecture(UUID userId, UUID lectureId) 
         throws LectureNotExistException, UserNotExistException, AllSeatsTakenException,
         AlreadyRegisteredForHourException, IOException {
+        
         Lecture lecture = lectureService.getLectureById(lectureId);
         Optional<User> userOptional = userDao.findUserById(userId);
         if(userOptional.isEmpty()) {
             throw new UserNotExistException();
         }
         
-        int takenSeats = lectureDao.checkNrTakenSeats(lectureId);
+        int takenSeats = lectureService.getNrTeakenSeatsLecture(lectureId);
         if(takenSeats >= LectureService.MAX_SEAT_NR) {
             throw new AllSeatsTakenException();
         }
 
-        List<Lecture> registeredUserLectures = lectureDao.getRegistratedLecturesForUser(userId);
+        List<Lecture> registeredUserLectures = lectureService.getRegistratedLecturesForUser(userId);
         for(Lecture l : registeredUserLectures) {
             if(l.getHStart() == lecture.getHStart()) {
                 throw new AlreadyRegisteredForHourException();
@@ -104,9 +99,6 @@ public class UserService {
         } else {
             Files.write(file, message, StandardCharsets.UTF_8);
         }
-        
-        
-        return 0;
     }
 
     public List<Lecture> getRegisteredLecturesForUser(UUID userId) throws UserNotExistException {
@@ -115,10 +107,10 @@ public class UserService {
             throw new UserNotExistException();
         }
 
-        return lectureDao.getRegistratedLecturesForUser(userId);
+        return lectureService.getRegistratedLecturesForUser(userId);
     }
     
-    public int deleteRegistration(UUID userId, UUID lectureId) throws UserNotExistException, LectureNotExistException {
+    public void deleteRegistration(UUID userId, UUID lectureId) throws UserNotExistException, LectureNotExistException {
         Optional<User> userOptional = userDao.findUserById(userId);
         if(userOptional.isEmpty()) {
             throw new UserNotExistException();
@@ -126,8 +118,6 @@ public class UserService {
         lectureService.getLectureById(lectureId);
 
         userDao.deleteRegistration(userId, lectureId);
-
-        return 0;
     } 
     
 }
