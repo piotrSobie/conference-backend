@@ -6,6 +6,7 @@ IDE used: VScode
 Used database: In-memory H2  
 
 Example requests were also included as postman export json file  
+You still need to copy paste same userId and lectureId manually to make it work properly.  
 Example requests:
 - show all registreted users in the system
   - GET localhost:8080/api/user/
