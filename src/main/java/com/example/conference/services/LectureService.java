@@ -31,7 +31,7 @@ public class LectureService {
     Lecture getLectureById(UUID id) throws LectureNotExistException {
         Optional<Lecture> lectureOptional = lectureDao.findLectureById(id);
         if(lectureOptional.isEmpty()) {
-            throw new LectureNotExistException("Lecture does not exist");
+            throw new LectureNotExistException();
         }
         return lectureOptional.get();
     }

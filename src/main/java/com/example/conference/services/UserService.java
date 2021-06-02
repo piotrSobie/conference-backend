@@ -53,7 +53,7 @@ public class UserService {
     public int addUser(User user) throws LoginAlreadyTakenException {
         Optional<User> userOptional = userDao.findUserByLogin(user.getLogin());
         if(userOptional.isPresent()) {
-            throw new LoginAlreadyTakenException("Podany login jest juz zajety");
+            throw new LoginAlreadyTakenException();
         }
 
         return userDao.insertUser(user);
@@ -66,7 +66,7 @@ public class UserService {
     public int updateUserEmail(UUID id, String email) throws UserNotExistException {
         Optional<User> userOptional = userDao.findUserById(id);
         if(userOptional.isEmpty()) {
-            throw new UserNotExistException("Uzytkownik nie istnieje");
+            throw new UserNotExistException();
         }
         return userDao.updateUserEmail(id, email);
     }
@@ -77,18 +77,18 @@ public class UserService {
         Lecture lecture = lectureService.getLectureById(lectureId);
         Optional<User> userOptional = userDao.findUserById(userId);
         if(userOptional.isEmpty()) {
-            throw new UserNotExistException("Uzytkownik nie istnieje");
+            throw new UserNotExistException();
         }
         
         int takenSeats = usersLecturesRelationDao.checkNrTakenSeats(lectureId);
         if(takenSeats >= LectureService.MAX_SEAT_NR) {
-            throw new AllSeatsTakenException("All seats taken for this lecture");
+            throw new AllSeatsTakenException();
         }
 
         List<Lecture> registeredUserLectures = lectureDataAccessService.getRegistratedLecturesForUser(userId);
         for(Lecture l : registeredUserLectures) {
             if(l.getHStart() == lecture.getHStart()) {
-                throw new AlreadyRegisteredForHourException("Juz zapisano na ta godzine");
+                throw new AlreadyRegisteredForHourException();
             }
         }
 
@@ -116,7 +116,7 @@ public class UserService {
     public List<Lecture> getRegisteredLecturesForUser(UUID userId) throws UserNotExistException {
         Optional<User> userOptional = userDao.findUserById(userId);
         if(userOptional.isEmpty()) {
-            throw new UserNotExistException("Uzytkownik nie istnieje");
+            throw new UserNotExistException();
         }
 
         return lectureDataAccessService.getRegistratedLecturesForUser(userId);
@@ -125,7 +125,7 @@ public class UserService {
     public int deleteRegistration(UUID userId, UUID lectureId) throws UserNotExistException, LectureNotExistException {
         Optional<User> userOptional = userDao.findUserById(userId);
         if(userOptional.isEmpty()) {
-            throw new UserNotExistException("Uzytkownik nie istnieje");
+            throw new UserNotExistException();
         }
         lectureService.getLectureById(lectureId);
 
