@@ -1,0 +1,187 @@
+{
+	"info": {
+		"_postman_id": "e3b2b25f-3f37-4933-9214-907eb217afcd",
+		"name": "it-conference",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Get all users",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "localhost:8080/api/user/",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"user",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Add new user",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"login\" : \"asdasd\",\r\n    \"email\" : \"email@efdwqeg\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:8080/api/user/",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"user",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Update user email",
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"email\" : \"emailPutttt@easd.com\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:8080/api/user/d2f6c4fe-308e-4f2c-b91f-511c2cb4c8e0",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"user",
+						"d2f6c4fe-308e-4f2c-b91f-511c2cb4c8e0"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get all lectures",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "localhost:8080/api/lecture",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"lecture"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Register user for lecture",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"id\" : \"d2f6c4fe-308e-4f2c-b91f-511c2cb4c8e0\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:8080/api/user/lecture/818cbd51-34ab-43df-aff0-9c68a0a21730",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"user",
+						"lecture",
+						"818cbd51-34ab-43df-aff0-9c68a0a21730"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get lectures for user",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "localhost:8080/api/user/lecture/d2f6c4fe-308e-4f2c-b91f-511c2cb4c8e0",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"user",
+						"lecture",
+						"d2f6c4fe-308e-4f2c-b91f-511c2cb4c8e0"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Delete registration",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"id\" : \"d2f6c4fe-308e-4f2c-b91f-511c2cb4c8e0\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:8080/api/user/lecture/818cbd51-34ab-43df-aff0-9c68a0a21730",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"user",
+						"lecture",
+						"818cbd51-34ab-43df-aff0-9c68a0a21730"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
