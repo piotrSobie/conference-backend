@@ -1,12 +1,12 @@
 # conference-backend
-Backend for it conference written with Spring Boot
-Java version: 11
-Created with: Maven
-IDE used: VScode
-Used database: In-memory H2
+Backend for it conference written with Spring Boot  
+Java version: 11  
+Created with: Maven  
+IDE used: VScode  
+Used database: In-memory H2  
 
 Example requests:
-- show all registreted in the system
+- show all registreted users in the system
   - GET localhost:8080/api/user/
 - add new user
   - POST localhost:8080/api/user/
