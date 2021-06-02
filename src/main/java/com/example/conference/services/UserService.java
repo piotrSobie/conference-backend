@@ -1,5 +1,15 @@
 package com.example.conference.services;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -26,6 +36,8 @@ public class UserService {
     private final UsersLecturesRelationDao usersLecturesRelationDao;
     private final LectureDataAccessService lectureDataAccessService;
     private final LectureService lectureService;
+
+    private final static String notificationsFileName = "powiadomienia.txt";
 
     @Autowired
     public UserService(@Qualifier("h2-user") UserDao userDao,
@@ -60,7 +72,8 @@ public class UserService {
     }
 
     public int registerUserForLecture(UUID userId, UUID lectureId) 
-        throws LectureNotExistException, UserNotExistException, AllSeatsTakenException, AlreadyRegisteredForHourException {
+        throws LectureNotExistException, UserNotExistException, AllSeatsTakenException,
+        AlreadyRegisteredForHourException, IOException {
         Lecture lecture = lectureService.getLectureById(lectureId);
         Optional<User> userOptional = userDao.findUserById(userId);
         if(userOptional.isEmpty()) {
@@ -80,6 +93,22 @@ public class UserService {
         }
 
         usersLecturesRelationDao.registerUserForPrelection(userId, lectureId);
+
+        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");  
+        LocalDateTime now = LocalDateTime.now();  
+            
+        List<String> message = Arrays.asList(
+            "Data wyslania " + dtf.format(now),
+            "Do " + userOptional.get().getLogin(),
+            "Dziekujemy za zarejestrowanie sie na wyklad " + lecture.getName() + ". Rozpoczyna sie o " + lecture.getHStart() + "\n" 
+        );
+        Path file = Paths.get(UserService.notificationsFileName);
+        if (Files.exists(file)) {
+            Files.write(file, message, StandardOpenOption.APPEND);
+        } else {
+            Files.write(file, message, StandardCharsets.UTF_8);
+        }
+        
         
         return 0;
     }
@@ -98,7 +127,7 @@ public class UserService {
         if(userOptional.isEmpty()) {
             throw new UserNotExistException("Uzytkownik nie istnieje");
         }
-        Lecture lecture = lectureService.getLectureById(lectureId);
+        lectureService.getLectureById(lectureId);
 
         usersLecturesRelationDao.deleteRegistration(userId, lectureId);
 

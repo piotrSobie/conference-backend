@@ -73,6 +73,7 @@ public class UserController {
                 new ErrorMessage(e.getMessage()),
                 HttpStatus.CONFLICT);
         } catch(Exception e) {
+            System.out.println(e.getMessage());
             return new ResponseEntity<>(
                 new ErrorMessage("Internal server error"),
                 HttpStatus.INTERNAL_SERVER_ERROR);
