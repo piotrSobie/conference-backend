@@ -5,6 +5,7 @@ Created with: Maven
 IDE used: VScode  
 Used database: In-memory H2  
 
+Example requests were also included as postman export json file  
 Example requests:
 - show all registreted users in the system
   - GET localhost:8080/api/user/
