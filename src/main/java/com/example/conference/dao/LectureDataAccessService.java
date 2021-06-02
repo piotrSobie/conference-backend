@@ -16,17 +16,18 @@ import org.springframework.stereotype.Repository;
 public class LectureDataAccessService implements LectureDao {
 
     private final JdbcTemplate jdbcTemplate;
+    private final LectureRowMapper lectureRowMapper;
 
     @Autowired
     public LectureDataAccessService(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
+        this.lectureRowMapper = new LectureRowMapper();
     }
 
     @Override
     public List<Lecture> selectAllLectures() {
         final String sql = "SELECT id, name, thematicPath, hStart, hEnd FROM lectures";
-        List<Lecture> lectures = jdbcTemplate.query(sql, new LectureRowMapper());
-        return lectures;
+        return jdbcTemplate.query(sql, lectureRowMapper);
     }
 
     @Override
@@ -34,7 +35,7 @@ public class LectureDataAccessService implements LectureDao {
         Lecture l;
         try {
             final String sql = "SELECT id, name, thematicPath, hStart, hEnd FROM lectures WHERE id = ?";
-            l = jdbcTemplate.queryForObject(sql, new LectureRowMapper(), id);
+            l = jdbcTemplate.queryForObject(sql, lectureRowMapper, id);
         } catch(EmptyResultDataAccessException e) {
             l = null;
         }
@@ -43,11 +44,17 @@ public class LectureDataAccessService implements LectureDao {
     }
 
     @Override
+    public int checkNrTakenSeats(UUID lectureId) {
+        final String sql = "SELECT count(*) FROM UsersLecturesRelation WHERE LectureId = ?";
+        int count = jdbcTemplate.queryForObject(sql, Integer.class, lectureId);
+        return count;
+    }
+
+    @Override
     public List<Lecture> getRegistratedLecturesForUser(UUID userId) {
-        final String sql = "select l.id, l.name, l.THEMATICPATH, l.HSTART, l.HEND  from lectures l " +
-                            "inner join USERSLECTURESRELATION ul on l.id = ul.LECTUREID " + 
-                            "inner join users u on ul.USERID = u.id WHERE u.id=?";
-        List<Lecture> registratedLecturesForUser = jdbcTemplate.query(sql, new LectureRowMapper(), userId);
-        return registratedLecturesForUser;
+        final String sql = "SELECT l.id, l.name, l.thematicPath, l.hStart, l.hEnd  FROM lectures l " +
+                            "INNER JOIN USERSLECTURESRELATION ul on l.id = ul.LECTUREID " + 
+                            "INNER JOIN users u on ul.USERID = u.id WHERE u.id = ?";
+        return jdbcTemplate.query(sql, lectureRowMapper, userId);
     }
 }

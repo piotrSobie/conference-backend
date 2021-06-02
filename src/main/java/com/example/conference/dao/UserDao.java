@@ -8,9 +8,9 @@ import com.example.conference.models.User;
 
 public interface UserDao {
     
-    int insertUser(UUID id, User user);
+    User insertUser(UUID id, User user);
 
-    default int insertUser(User user) {
+    default User insertUser(User user) {
         UUID id = UUID.randomUUID();
         return insertUser(id, user);
     }
@@ -19,7 +19,11 @@ public interface UserDao {
 
     Optional<User> findUserByLogin(String login);
 
-    int updateUserEmail(UUID id, String email);
-
     Optional<User> findUserById(UUID id);
+
+    void updateUserEmail(UUID id, String email);
+
+    void registerUserForPrelection(UUID userId, UUID lectureId);
+
+    void deleteRegistration(UUID userId, UUID lectureId);
 }

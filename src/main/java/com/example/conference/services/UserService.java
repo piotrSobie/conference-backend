@@ -1,6 +1,5 @@
 package com.example.conference.services;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -14,9 +13,9 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import com.example.conference.dao.LectureDao;
 import com.example.conference.dao.LectureDataAccessService;
 import com.example.conference.dao.UserDao;
-import com.example.conference.dao.UsersLecturesRelationDao;
 import com.example.conference.exceptions.AllSeatsTakenException;
 import com.example.conference.exceptions.AlreadyRegisteredForHourException;
 import com.example.conference.exceptions.LectureNotExistException;
@@ -33,29 +32,25 @@ import org.springframework.stereotype.Service;
 public class UserService {
 
     private final UserDao userDao;
-    private final UsersLecturesRelationDao usersLecturesRelationDao;
-    private final LectureDataAccessService lectureDataAccessService;
+    private final LectureDao lectureDao;
     private final LectureService lectureService;
 
     private final static String notificationsFileName = "powiadomienia.txt";
 
     @Autowired
     public UserService(@Qualifier("h2-user") UserDao userDao,
-                        @Qualifier("h2-users-lectures-relation") UsersLecturesRelationDao usersLecturesRelationDao,
                         @Qualifier("h2-lecture") LectureDataAccessService lectureDataAccessService,
                         LectureService lectureService) {
         this.userDao = userDao;
-        this.usersLecturesRelationDao = usersLecturesRelationDao;
-        this.lectureDataAccessService = lectureDataAccessService;
+        this.lectureDao = lectureDataAccessService;
         this.lectureService = lectureService;
     }
 
-    public int addUser(User user) throws LoginAlreadyTakenException {
+    public User addUser(User user) throws LoginAlreadyTakenException {
         Optional<User> userOptional = userDao.findUserByLogin(user.getLogin());
         if(userOptional.isPresent()) {
             throw new LoginAlreadyTakenException();
         }
-
         return userDao.insertUser(user);
     }
 
@@ -68,7 +63,8 @@ public class UserService {
         if(userOptional.isEmpty()) {
             throw new UserNotExistException();
         }
-        return userDao.updateUserEmail(id, email);
+        userDao.updateUserEmail(id, email);
+        return 0;
     }
 
     public int registerUserForLecture(UUID userId, UUID lectureId) 
@@ -80,19 +76,19 @@ public class UserService {
             throw new UserNotExistException();
         }
         
-        int takenSeats = usersLecturesRelationDao.checkNrTakenSeats(lectureId);
+        int takenSeats = lectureDao.checkNrTakenSeats(lectureId);
         if(takenSeats >= LectureService.MAX_SEAT_NR) {
             throw new AllSeatsTakenException();
         }
 
-        List<Lecture> registeredUserLectures = lectureDataAccessService.getRegistratedLecturesForUser(userId);
+        List<Lecture> registeredUserLectures = lectureDao.getRegistratedLecturesForUser(userId);
         for(Lecture l : registeredUserLectures) {
             if(l.getHStart() == lecture.getHStart()) {
                 throw new AlreadyRegisteredForHourException();
             }
         }
 
-        usersLecturesRelationDao.registerUserForPrelection(userId, lectureId);
+        userDao.registerUserForPrelection(userId, lectureId);
 
         DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");  
         LocalDateTime now = LocalDateTime.now();  
@@ -119,7 +115,7 @@ public class UserService {
             throw new UserNotExistException();
         }
 
-        return lectureDataAccessService.getRegistratedLecturesForUser(userId);
+        return lectureDao.getRegistratedLecturesForUser(userId);
     }
     
     public int deleteRegistration(UUID userId, UUID lectureId) throws UserNotExistException, LectureNotExistException {
@@ -129,7 +125,7 @@ public class UserService {
         }
         lectureService.getLectureById(lectureId);
 
-        usersLecturesRelationDao.deleteRegistration(userId, lectureId);
+        userDao.deleteRegistration(userId, lectureId);
 
         return 0;
     } 

@@ -39,8 +39,7 @@ public class UserController {
     @PostMapping
     public ResponseEntity<Object> addUser(@RequestBody User user) {
         try {
-            userService.addUser(user);
-            return new ResponseEntity<>(HttpStatus.CREATED);
+            return new ResponseEntity<>(userService.addUser(user), HttpStatus.CREATED);
         } catch(LoginAlreadyTakenException e) {
             return new ResponseEntity<>(
                 new ErrorMessage(e.getMessage()),
