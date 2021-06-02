@@ -1,7 +1,7 @@
 package com.example.conference.exceptions;
 
 public class UserNotExistException extends Exception {
-    public UserNotExistException(String errorMessage) {
-        super(errorMessage);
+    public UserNotExistException() {
+        super("User does not exist");
     }
 }

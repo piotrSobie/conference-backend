@@ -12,27 +12,29 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
-@Repository("h2")
+@Repository("h2-user")
 public class UserDataAccessService implements UserDao {
 
     private final JdbcTemplate jdbcTemplate;
+    private final UserRowMapper userRowMapper;
     
     @Autowired
     public UserDataAccessService(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
+        this.userRowMapper = new UserRowMapper();
     }
 
     @Override
-    public int insertUser(UUID id, User user) {
-        final String sql = "INSERT INTO users (login, email) VALUES (?, ?)";
-        jdbcTemplate.update(sql, user.getLogin(), user.getEmail());
-        return 0;
-    }
+    public User insertUser(UUID id, User user) {
+        final String sql = "INSERT INTO users (id, login, email) VALUES (?, ?, ?)";
+        jdbcTemplate.update(sql, id, user.getLogin(), user.getEmail());
+        return new User(id, user.getLogin(), user.getEmail());
+    } 
 
     @Override
     public List<User> selectAllUsers() {
         final String sql = "SELECT id, login, email FROM USERS";
-        List<User> users = jdbcTemplate.query(sql, new UserRowMapper());
+        List<User> users = jdbcTemplate.query(sql, userRowMapper);
         return users;
     }
 
@@ -41,18 +43,11 @@ public class UserDataAccessService implements UserDao {
         User u;
         try {
             final String sql = "SELECT id, login, email FROM users WHERE login = ?";
-            u = jdbcTemplate.queryForObject(sql, new UserRowMapper(), login);
+            u = jdbcTemplate.queryForObject(sql, userRowMapper, login);
         } catch(EmptyResultDataAccessException e) {
             u = null;
         }
         return Optional.ofNullable(u);
-    }
-
-    @Override
-    public int updateUserEmail(UUID id, String email) {
-        final String sql = "UPDATE USERS SET email = ? WHERE id = ?";
-        jdbcTemplate.update(sql, email, id);
-        return 0;
     }
 
     @Override
@@ -60,11 +55,28 @@ public class UserDataAccessService implements UserDao {
         User u;
         try {
             final String sql = "SELECT id, login, email FROM users WHERE id = ?";
-            u = jdbcTemplate.queryForObject(sql, new UserRowMapper(), id);
+            u = jdbcTemplate.queryForObject(sql, userRowMapper, id);
         } catch(EmptyResultDataAccessException e) {
             u = null;
         }
         return Optional.ofNullable(u);
     }
-    
+
+    @Override
+    public void updateUserEmail(UUID id, String email) {
+        final String sql = "UPDATE USERS SET email = ? WHERE id = ?";
+        jdbcTemplate.update(sql, email, id);
+    }
+
+    @Override
+    public void registerUserForPrelection(UUID userId, UUID lectureId) {
+        final String sql = "INSERT INTO UsersLecturesRelation (UserId, LectureId) VALUES (?, ?)";
+        jdbcTemplate.update(sql, userId, lectureId);
+    }
+
+    @Override
+    public void deleteRegistration(UUID userId, UUID lectureId) {
+        final String sql = "DELETE FROM UsersLecturesRelation WHERE UserId = ? AND LectureId = ?";
+        jdbcTemplate.update(sql, userId, lectureId);
+    }
 }
