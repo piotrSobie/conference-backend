@@ -16,6 +16,7 @@ import com.example.conference.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -124,5 +125,25 @@ public class UserController {
                 new ErrorMessage("Internal server error"),
                 HttpStatus.INTERNAL_SERVER_ERROR);
         }
+    }
+
+    @DeleteMapping(path = "lecture/{lectureId}")
+    public ResponseEntity<Object> deleteRegistration(@PathVariable("lectureId") UUID lectureId, @RequestBody User user) {
+        try {
+            userService.deleteRegistration(user.getId(), lectureId);
+        } catch(LectureNotExistException e) {
+            return new ResponseEntity<>(
+                new ErrorMessage(e.getMessage()),
+                HttpStatus.CONFLICT);
+        } catch(UserNotExistException e) {
+            return new ResponseEntity<>(
+                new ErrorMessage(e.getMessage()),
+                HttpStatus.CONFLICT);
+        } catch(Exception e) {
+            return new ResponseEntity<>(
+                new ErrorMessage("Internal server error"),
+                HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+        return null;
     }
 }

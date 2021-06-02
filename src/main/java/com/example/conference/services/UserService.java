@@ -91,6 +91,18 @@ public class UserService {
         }
 
         return lectureDataAccessService.getRegistratedLecturesForUser(userId);
+    }
+    
+    public int deleteRegistration(UUID userId, UUID lectureId) throws UserNotExistException, LectureNotExistException {
+        Optional<User> userOptional = userDao.findUserById(userId);
+        if(userOptional.isEmpty()) {
+            throw new UserNotExistException("Uzytkownik nie istnieje");
+        }
+        Lecture lecture = lectureService.getLectureById(lectureId);
+
+        usersLecturesRelationDao.deleteRegistration(userId, lectureId);
+
+        return 0;
     } 
     
 }

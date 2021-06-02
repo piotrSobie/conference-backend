@@ -29,5 +29,12 @@ public class UsersLecturesRelationDataAccessService implements UsersLecturesRela
         int count = jdbcTemplate.queryForObject(sql, Integer.class, lectureId);
         return count;
     }
+
+    @Override
+    public int deleteRegistration(UUID userId, UUID lectureId) {
+        final String sql = "DELETE FROM UsersLecturesRelation WHERE UserId = ? AND LectureId = ?";
+        jdbcTemplate.update(sql, userId, lectureId);
+        return 0;
+    }
     
 }
