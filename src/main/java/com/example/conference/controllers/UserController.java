@@ -1,10 +1,15 @@
 package com.example.conference.controllers;
 
+import java.util.List;
 import java.util.UUID;
 
+import com.example.conference.exceptions.AllSeatsTakenException;
+import com.example.conference.exceptions.AlreadyRegisteredForHourException;
+import com.example.conference.exceptions.LectureNotExistException;
 import com.example.conference.exceptions.LoginAlreadyTakenException;
 import com.example.conference.exceptions.UserNotExistException;
 import com.example.conference.helpers.ErrorMessage;
+import com.example.conference.models.Lecture;
 import com.example.conference.models.User;
 import com.example.conference.services.UserService;
 
@@ -39,6 +44,54 @@ public class UserController {
             return new ResponseEntity<>(
                 new ErrorMessage(e.getMessage()),
                 HttpStatus.CONFLICT);
+        } catch(Exception e) {
+            return new ResponseEntity<>(
+                new ErrorMessage("Internal server error"),
+                HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @PostMapping(path = "lecture/{lectureId}")
+    public ResponseEntity<Object> registerForLecture(@PathVariable("lectureId") UUID lectureId, @RequestBody User user) {
+        try {
+            userService.registerUserForLecture(user.getId(), lectureId);
+        } catch(LectureNotExistException e) {
+            return new ResponseEntity<>(
+                new ErrorMessage(e.getMessage()),
+                HttpStatus.NOT_FOUND);
+        } catch(UserNotExistException e) {
+            return new ResponseEntity<>(
+                new ErrorMessage(e.getMessage()),
+                HttpStatus.NOT_FOUND);
+        } catch(AllSeatsTakenException e) {
+            return new ResponseEntity<>(
+                new ErrorMessage(e.getMessage()),
+                HttpStatus.CONFLICT);
+        } catch(AlreadyRegisteredForHourException e) {
+            return new ResponseEntity<>(
+                new ErrorMessage(e.getMessage()),
+                HttpStatus.CONFLICT);
+        } catch(Exception e) {
+            return new ResponseEntity<>(
+                new ErrorMessage("Internal server error"),
+                HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+        
+        return null;
+    }
+
+    @GetMapping(path = "lecture/{userId}")
+    public ResponseEntity<Object> getLecturesForUser(@PathVariable("userId") UUID userId) {
+        try {
+            List<Lecture> lectures = userService.getRegisteredLecturesForUser(userId);
+            return new ResponseEntity<>(
+                lectures,
+                HttpStatus.OK
+            );
+        } catch(UserNotExistException e) {
+            return new ResponseEntity<>(
+                new ErrorMessage(e.getMessage()),
+                HttpStatus.NOT_FOUND);
         } catch(Exception e) {
             return new ResponseEntity<>(
                 new ErrorMessage("Internal server error"),

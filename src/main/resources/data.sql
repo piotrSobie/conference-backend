@@ -32,3 +32,11 @@ INSERT INTO lectures (name, thematicPath, hStart, hEnd) VALUES
     ('prelekcja 2 sciezka 3', 'sciezka 3', '12:00', '13:45'),
     ('prelekcja 3 sciezka 3', 'sciezka 3', '14:00', '15:45');
 
+DROP TABLE IF EXISTS UsersLecturesRelation;
+
+CREATE TABLE UsersLecturesRelation(
+    UserId UUID NOT NULL,
+    LectureId UUID NOT NULL,
+    FOREIGN KEY (UserId) REFERENCES users(id),
+    FOREIGN KEY (LectureId) REFERENCES lectures(id)
+);
