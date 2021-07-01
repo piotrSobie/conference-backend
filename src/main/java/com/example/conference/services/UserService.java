@@ -14,6 +14,8 @@ import java.util.Optional;
 import java.util.UUID;
 
 import com.example.conference.dao.UserDao;
+import com.example.conference.dtos.AddUserDto;
+import com.example.conference.dtos.UpdateUserEmailDto;
 import com.example.conference.exceptions.AllSeatsTakenException;
 import com.example.conference.exceptions.AlreadyRegisteredForHourException;
 import com.example.conference.exceptions.LectureNotExistException;
@@ -41,7 +43,7 @@ public class UserService {
         this.lectureService = lectureService;
     }
 
-    public User addUser(User user) throws LoginAlreadyTakenException {
+    public User addUser(AddUserDto user) throws LoginAlreadyTakenException {
         Optional<User> userOptional = userDao.findUserByLogin(user.getLogin());
         if(userOptional.isPresent()) {
             throw new LoginAlreadyTakenException();
@@ -49,16 +51,16 @@ public class UserService {
         return userDao.insertUser(user);
     }
 
-    public List<User> getAllUsers() {
-        return userDao.selectAllUsers();
+    public List<User> getAllUsers(Integer limit) {
+        return userDao.selectAllUsers(limit);
     }
 
-    public void updateUserEmail(UUID id, String email) throws UserNotExistException {
+    public void updateUserEmail(UUID id, UpdateUserEmailDto userDto) throws UserNotExistException {
         Optional<User> userOptional = userDao.findUserById(id);
         if(userOptional.isEmpty()) {
             throw new UserNotExistException();
         }
-        userDao.updateUserEmail(id, email);
+        userDao.updateUserEmail(id, userDto);
     }
 
     public void registerUserForLecture(UUID userId, UUID lectureId) 

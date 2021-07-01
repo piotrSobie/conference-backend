@@ -4,6 +4,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import com.example.conference.dtos.AddUserDto;
+import com.example.conference.dtos.UpdateUserEmailDto;
 import com.example.conference.mappers.UserRowMapper;
 import com.example.conference.models.User;
 
@@ -25,15 +27,21 @@ public class UserDataAccessService implements UserDao {
     }
 
     @Override
-    public User insertUser(UUID id, User user) {
+    public User insertUser(UUID id, AddUserDto user) {
         final String sql = "INSERT INTO users (id, login, email) VALUES (?, ?, ?)";
         jdbcTemplate.update(sql, id, user.getLogin(), user.getEmail());
         return new User(id, user.getLogin(), user.getEmail());
     } 
 
     @Override
-    public List<User> selectAllUsers() {
-        final String sql = "SELECT id, login, email FROM USERS";
+    public List<User> selectAllUsers(Integer limit) {
+        String limitStr;
+        try {
+            limitStr = limit.toString();
+        } catch(Exception e) {
+            limitStr = "null";
+        }
+        final String sql = "SELECT id, login, email FROM USERS LIMIT " + limitStr;
         List<User> users = jdbcTemplate.query(sql, userRowMapper);
         return users;
     }
@@ -63,9 +71,9 @@ public class UserDataAccessService implements UserDao {
     }
 
     @Override
-    public void updateUserEmail(UUID id, String email) {
+    public void updateUserEmail(UUID id, UpdateUserEmailDto userDto) {
         final String sql = "UPDATE USERS SET email = ? WHERE id = ?";
-        jdbcTemplate.update(sql, email, id);
+        jdbcTemplate.update(sql, userDto.getEmail(), id);
     }
 
     @Override
